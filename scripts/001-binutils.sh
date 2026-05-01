@@ -1,6 +1,8 @@
 #!/bin/bash
 # binutils by pspdev developers
 
+set -x
+
 ## Exit with code 1 when any command executed returns a non-zero exit code.
 onerr()
 {
@@ -41,10 +43,11 @@ if [ "$(uname -s)" = "Darwin" ]; then
   ## Check if using brew
   if command -v brew &> /dev/null; then
     TARG_XTRA_OPTS="--with-gmp=$(brew --prefix gmp) --with-mpfr=$(brew --prefix mpfr) --with-system-zlib"
-  fi
+  elif command -v port &> /dev/null; then
   ## Check if using MacPorts
-  if command -v port &> /dev/null; then
-    TARG_XTRA_OPTS="--with-gmp=$(port -q prefix gmp) --with-mpfr=$(port -q prefix mpfr) --with-system-zlib"
+    MACPORT_BASE=$(dirname `port -q contents gmp|grep gmp.h`|sed s#/include##g)
+    echo Macport base is $MACPORT_BASE
+    TARG_XTRA_OPTS="--with-system-zlib --with-libiconv_prefix=$MACPORT_BASE --with-gmp=$MACPORT_BASE --with-mpfr=$MACPORT_BASE --with-mpc=$MACPORT_BASE"
   fi
 fi
 
